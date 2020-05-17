@@ -1,4 +1,5 @@
 # Piedroit
+
 Turn a Raspberry Pi into a footswitch that emulates a USB keyboard.
 
 # Instructions
@@ -7,13 +8,18 @@ Based on [Composite USB Gadgets on the Raspberry Pi Zero](https://www.isticktoit
 
 Tested on a Rasperry Pi Zero W Rev 1.1.
 
-## Step 1: Kernel Stuff
+## Step 1: Kernel modules
+
+To make this work, we need to enable something called a **device tree overlay**, and then add two modules to `/etc/modules`:
 
 ```
 echo "dtoverlay=dwc2" | sudo tee -a /boot/config.txt
 echo "dwc2" | sudo tee -a /etc/modules
 sudo echo "libcomposite" | sudo tee -a /etc/modules
 ```
+
+(Check out [this Stack Exchange post](https://raspberrypi.stackexchange.com/questions/77059/what-does-dtoverlay-dwc2-really-do) if you want to understand what's really going on here. It's a bit gnarly.)
+
 ## Step 2: Config Stuff
 
 Create a file `/usr/bin/piedroit_usb` with the following content:
@@ -46,6 +52,12 @@ ln -s functions/hid.usb0 configs/c.1/
 # END function definition for emulating a USB keyboard
 
 ls /sys/class/udc > UDC
+```
+
+Make that file executable:
+
+```
+$ chmod 700 /usr/bin/piedroit_usb
 ```
 
 Add these lines to `/etc/rc.local`, near the end of the file but BEFORE the `exit 0`:
